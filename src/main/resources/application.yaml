@@ -1,0 +1,3 @@
+server:
+  servlet:
+    context-path: /spring-log4j2-service

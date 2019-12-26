@@ -1,0 +1,79 @@
+Configuration:
+  status: debug
+  Properties: # Example Properties. Being used in this example
+    #    Env vs sys
+    #    By the way, the env prefix is for environment variables (like %PATH% on Windows),
+    #    and is not related to sys, which is Java system properties.
+    #    See also https://logging.apache.org/log4j/2.0/manual/lookups.html
+    Property:
+      - name: logPostFix
+        value: spring-log4j2-service
+      - name: baseLogDir
+        value: ${sys:logging.baseLogDir:-logs}
+      - name: default-service-loglevel
+        value: ${env:default-service-loglevel:-warn}
+      - name: containerId
+        value: ${env:HOSTNAME:-containerid}
+  appenders:
+    Console:
+      name: LogToConsole
+      PatternLayout:
+        #Pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+        Pattern: "%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=bg_red, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
+        #Pattern: "%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%xwEx"
+
+    RollingFile:
+      - name: LogToRollingFile
+        fileName: "${baseLogDir}/${logPostFix}-${containerId}-application.log" # This will create directory where the repository is
+        filePattern: "${baseLogDir}/${logPostFix}-${containerId}-application-%d{yyyy-MM-dd}-%i.log.gz"
+        PatternLayout:
+          pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+        Policies:
+          SizeBasedTriggeringPolicy:
+            size: 10MB
+        DefaultRollOverStrategy:
+          max: 10
+      - name: LogToRollingFileAsJson
+        fileName: "${baseLogDir}/${logPostFix}-${containerId}-application-json.log" # This will create directory where the repository is
+        filePattern: "${baseLogDir}/${logPostFix}-${containerId}-application-%d{yyyy-MM-dd}-%i.log.gz"
+        JsonLayout:
+          eventEol: true
+          compact: true
+          KeyValuePair:
+            - key: serviceName
+              value: serviceName
+            - key: correlationId
+              value: correlationId
+        policies:
+          TimeBasedTriggeringPolicy:
+            interval: 1
+            modulate: true
+  Loggers:
+    logger: # Loggers is associated with a package or sometimes with a particular class. Package/class of a logger is defined by the attribute "name". A logger logs messages in its package and also in all the child packages and their classes. The only exception is the root logger that logs messages for the all classes in the application.
+      - name: com.raminus.springlog4j2.controller # Log level is debug under controller package
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
+          - ref: LogToRollingFileAsJson
+      - name: com.raminus.springlog4j2.model # Log level is info under model package
+        level: info
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
+          - ref: LogToRollingFileAsJson
+      - name: com.raminus.springlog4j2.domain.LogMapper # Log level is info for this LogMapper class
+        level: ${default-service-loglevel}
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
+          - ref: LogToRollingFileAsJson
+    Root: # root logger that logs messages for the all classes in the application regardless of package or class
+      level: error
+      AppenderRef:
+        - ref: LogToConsole
+        - ref: LogToRollingFile
+        - ref: LogToRollingFileAsJson

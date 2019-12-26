@@ -1,0 +1,5 @@
+[ERROR] 2019-12-25 19:24:39.946 [main] SpringLog4j2Application - Oops! We have an Error. OK
+[FATAL] 2019-12-25 19:24:39.989 [main] SpringLog4j2Application - Fatal error. Please fix me.
+[ERROR] 2019-12-25 19:33:24.442 [main] SpringLog4j2Application - Oops! We have an Error. OK
+[FATAL] 2019-12-25 19:33:24.485 [main] SpringLog4j2Application - Fatal error. Please fix me.
+[DEBUG] 2019-12-25 19:33:34.134 [http-nio-8080-exec-1] Log4jController - Log4j2 message: LogData(level=info level, description=this is log data description)
