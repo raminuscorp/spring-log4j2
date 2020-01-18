@@ -1,0 +1,3 @@
+GET http://localhost:8080/spring-log4j2-service/private/1001/logs
+
+###

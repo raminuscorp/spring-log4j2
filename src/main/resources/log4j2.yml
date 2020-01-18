@@ -41,9 +41,9 @@ Configuration:
           compact: true
           KeyValuePair:
             - key: serviceName
-              value: serviceName
+              value: ${logPostFix}
             - key: correlationId
-              value: correlationId
+              value: $${ctx:correlationId:-}
         policies:
           TimeBasedTriggeringPolicy:
             interval: 1
